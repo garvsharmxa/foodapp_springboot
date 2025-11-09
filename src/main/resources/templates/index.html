@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>XpressBites - Order Management Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #000000 100%);
+            color: #e5e5e5;
+            overflow-x: hidden;
+        }
+
+        /* Mobile-first layout */
+        .app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Mobile Navigation */
+        .mobile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            border-bottom: 1px solid rgba(194, 39, 45, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .mobile-logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #C2272D, #ff4651);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mobile-logo::before {
+            content: "🍕";
+            font-size: 1.2rem;
+            filter: drop-shadow(0 0 8px rgba(194, 39, 45, 0.5));
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: #e5e5e5;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(194, 39, 45, 0.1);
+            color: #C2272D;
+        }
+
+        /* Connection Status in Mobile Header */
+        .mobile-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .mobile-status .status-dot {
+            width: 8px;
+            height: 8px;
+        }
+
+        /* Mobile Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+            color: #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.8);
+            border-right: 1px solid rgba(194, 39, 45, 0.2);
+            transition: left 0.3s ease;
+            z-index: 1001;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(194, 39, 45, 0.3);
+            background: linear-gradient(135deg, rgba(194, 39, 45, 0.1) 0%, transparent 100%);
+        }
+
+        .sidebar-logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, #C2272D, #ff4651);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .sidebar-logo::before {
+            content: "🍕";
+            font-size: 1.3rem;
+            filter: drop-shadow(0 0 10px rgba(194, 39, 45, 0.5));
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            color: #b0b0b0;
+        }
+
+        .close-sidebar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #e5e5e5;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .close-sidebar:hover {
+            background: rgba(194, 39, 45, 0.1);
+            color: #C2272D;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 15px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: rgba(229, 229, 229, 0.7);
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin: 2px 10px;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #C2272D;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(194, 39, 45, 0.1);
+            color: #C2272D;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-item:hover::before,
+        .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-item .icon {
+            margin-right: 12px;
+            font-size: 1rem;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            background: #0f0f0f;
+            min-height: calc(100vh - 70px);
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            padding: 20px;
+            border-bottom: 1px solid rgba(194, 39, 45, 0.2);
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e5e5e5, #C2272D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 20px;
+        }
+
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Mobile-optimized Cards */
+        .card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(194, 39, 45, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #C2272D, transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e5e5e5;
+            flex: 1;
+        }
+
+        /* Connection Card */
+        .connection-card .card-icon {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+
+        /* Order Card */
+        .order-card .card-icon {
+            background: linear-gradient(135deg, #C2272D, #a21e24);
+            color: white;
+        }
+
+        /* Messages Card */
+        .messages-card .card-icon {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .card-header-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #d1d1d1;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(194, 39, 45, 0.3);
+            border-radius: 8px;
+            font-size: 16px; /* Prevents zoom on iOS */
+            transition: all 0.2s ease;
+            background: rgba(26, 26, 26, 0.8);
+            color: #e5e5e5;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #C2272D;
+            box-shadow: 0 0 0 2px rgba(194, 39, 45, 0.2);
+            background: rgba(26, 26, 26, 1);
+        }
+
+        .form-control::placeholder {
+            color: #666;
+        }
+
+        /* Mobile-optimized buttons */
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+            min-height: 44px; /* Touch-friendly size */
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #C2272D, #a21e24);
+            color: white;
+            box-shadow: 0 4px 15px rgba(194, 39, 45, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(194, 39, 45, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #404040, #2a2a2a);
+            color: #e5e5e5;
+            border: 1px solid rgba(194, 39, 45, 0.2);
+        }
+
+        .btn-secondary:active {
+            background: linear-gradient(135deg, #4a4a4a, #343434);
+        }
+
+        /* Messages Container */
+        .messages-container {
+            height: 250px;
+            overflow-y: auto;
+            background: rgba(13, 13, 13, 0.8);
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid rgba(194, 39, 45, 0.1);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .messages-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: rgba(26, 26, 26, 0.5);
+            border-radius: 2px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #C2272D;
+            border-radius: 2px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            animation: slideIn 0.3s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .message-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .message.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border-left: 3px solid #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .message.success .message-icon {
+            background: #22c55e;
+            box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+        }
+
+        .message.error {
+            background: rgba(194, 39, 45, 0.1);
+            color: #ff6b6b;
+            border-left: 3px solid #C2272D;
+            border: 1px solid rgba(194, 39, 45, 0.2);
+        }
+
+        .message.error .message-icon {
+            background: #C2272D;
+            box-shadow: 0 0 6px rgba(194, 39, 45, 0.4);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Status Select Styling */
+        .status-select {
+            position: relative;
+        }
+
+        .status-select select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23C2272D' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* Empty state */
+        .empty-messages {
+            text-align: center;
+            padding: 30px 15px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.3;
+            filter: grayscale(1);
+        }
+
+        /* Status indicators */
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: #22c55e;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+        }
+
+        .status-dot.disconnected {
+            background: #C2272D;
+            box-shadow: 0 0 8px rgba(194, 39, 45, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Button groups on mobile */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Tablet styles */
+        @media (min-width: 768px) {
+            .app {
+                flex-direction: row;
+            }
+
+            .mobile-header {
+                display: none;
+            }
+
+            .sidebar {
+                position: static;
+                left: 0;
+                width: 280px;
+                box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
+            }
+
+            .sidebar-overlay {
+                display: none;
+            }
+
+            .main {
+                min-height: 100vh;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 25px;
+            }
+
+            .messages-card {
+                grid-column: span 2;
+            }
+
+            .btn-group {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .btn {
+                width: auto;
+                margin-bottom: 0;
+            }
+
+            .messages-container {
+                height: 350px;
+            }
+
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px 30px;
+                text-align: left;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+                margin-bottom: 0;
+            }
+
+            .mobile-status {
+                display: none;
+            }
+
+            .connection-status {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 600;
+                padding: 8px 16px;
+                background: rgba(26, 26, 26, 0.8);
+                border-radius: 20px;
+                border: 1px solid rgba(194, 39, 45, 0.3);
+            }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 1024px) {
+            .card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+            }
+
+            .btn:hover {
+                transform: translateY(-1px);
+            }
+
+            .btn-primary:hover {
+                box-shadow: 0 6px 20px rgba(194, 39, 45, 0.4);
+            }
+        }
+
+        /* Hide desktop elements on mobile */
+        .desktop-only {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .desktop-only {
+                display: block;
+            }
+
+            .mobile-only {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-logo">XpressBites</div>
+        <div class="mobile-status">
+            <span class="status-dot" id="mobileStatusDot"></span>
+            <span id="mobileConnectionText">Offline</span>
+        </div>
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="close-sidebar" onclick="closeSidebar()">×</button>
+            <div class="sidebar-logo">XpressBites</div>
+            <div class="sidebar-subtitle">Order Management</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active">
+                <span class="icon">📊</span>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">🍽️</span>
+                Orders
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">🏪</span>
+                Restaurants
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">🚗</span>
+                Delivery
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">👥</span>
+                Customers
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">💰</span>
+                Revenue
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">⚙️</span>
+                Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+        <header class="page-header">
+            <h1 class="page-title">Real-time Order Management</h1>
+            <div class="connection-status desktop-only">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="connectionText">Disconnected</span>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="dashboard-grid">
+                <!-- Connection Card -->
+                <div class="card connection-card">
+                    <div class="card-header">
+                        <div class="card-icon">🔗</div>
+                        <h3 class="card-title">WebSocket Connection</h3>
+                    </div>
+                    <div class="form-group">
+                        <p style="margin-bottom: 15px; color: #999; font-size: 0.9rem;">
+                            Manage real-time connection to order updates
+                        </p>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="connect()">
+                                🚀 Connect to Server
+                            </button>
+                            <button class="btn btn-secondary" onclick="disconnect()">
+                                ⏹️ Disconnect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Update Card -->
+                <div class="card order-card">
+                    <div class="card-header">
+                        <div class="card-icon">📋</div>
+                        <h3 class="card-title">Update Order Status</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Order ID</label>
+                        <input type="number" id="orderId" value="1" class="form-control" placeholder="Enter order ID">
+                    </div>
+                    <div class="form-group status-select">
+                        <label class="form-label">Order Status</label>
+                        <select id="orderStatus" class="form-control">
+                            <option value="PENDING">🕐 PENDING</option>
+                            <option value="CONFIRMED">✅ CONFIRMED</option>
+                            <option value="PREPARING">👨‍🍳 PREPARING</option>
+                            <option value="READY">🍕 READY</option>
+                            <option value="DELIVERED">🚚 DELIVERED</option>
+                            <option value="CANCELLED">❌ CANCELLED</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="sendOrderUpdate()">
+                        📤 Send Update
+                    </button>
+                </div>
+
+                <!-- Messages Card -->
+                <div class="card messages-card">
+                    <div class="card-header">
+                        <div class="card-icon">💬</div>
+                        <h3 class="card-title">Live Activity Feed</h3>
+                        <div class="card-header-actions">
+                            <button class="btn btn-secondary" onclick="clearMessages()">
+                                🗑️ Clear All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="messages-container" id="messages">
+                        <div class="empty-messages">
+                            <div class="empty-icon">📱</div>
+                            <p>No activity yet. Connect to start receiving order updates.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let stompClient = null;
+    const messagesDiv = document.getElementById('messages');
+    const statusDot = document.getElementById('statusDot');
+    const connectionText = document.getElementById('connectionText');
+    const mobileStatusDot = document.getElementById('mobileStatusDot');
+    const mobileConnectionText = document.getElementById('mobileConnectionText');
+
+    function updateConnectionStatus(connected) {
+        const status = connected ? 'Connected' : 'Disconnected';
+        const className = connected ? 'status-dot connected' : 'status-dot disconnected';
+
+        if (statusDot) {
+            statusDot.className = className;
+            connectionText.textContent = status;
+        }
+
+        if (mobileStatusDot) {
+            mobileStatusDot.className = className;
+            mobileConnectionText.textContent = status;
+        }
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    function connect() {
+        const socket = new SockJS('http://localhost:3001/api/v1/ws-order');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function(frame) {
+            updateConnectionStatus(true);
+
+            stompClient.subscribe('/topic/order-status', function(message) {
+                const order = JSON.parse(message.body);
+                addMessage(`Order #${order.id} status updated to ${order.status}`, 'success');
+            });
+
+            addMessage('Successfully connected to XpressBites order system', 'success');
+        }, function(error) {
+            updateConnectionStatus(false);
+            addMessage('Failed to connect to order system: ' + error, 'error');
+        });
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+            updateConnectionStatus(false);
+            addMessage('Disconnected from XpressBites order system', 'error');
+        }
+    }
+
+    function sendOrderUpdate() {
+        if (stompClient && stompClient.connected) {
+            const orderId = document.getElementById('orderId').value;
+            const status = document.getElementById('orderStatus').value;
+
+            if (!orderId) {
+                addMessage('Please enter a valid order ID', 'error');
+                return;
+            }
+
+            const orderUpdate = {
+                id: parseInt(orderId),
+                status: status
+            };
+
+            stompClient.send("/app/update-order", {}, JSON.stringify(orderUpdate));
+            addMessage(`Order #${orderId} status updated to ${status}`, 'success');
+        } else {
+            addMessage('Please connect to the server first', 'error');
+        }
+    }
+
+    function addMessage(message, type = '') {
+        // Remove empty state if it exists
+        const emptyState = messagesDiv.querySelector('.empty-messages');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message ' + type;
+
+        const icon = document.createElement('div');
+        icon.className = 'message-icon';
+
+        const text = document.createElement('span');
+        text.textContent = new Date().toLocaleTimeString() + ': ' + message;
+
+        messageElement.appendChild(icon);
+        messageElement.appendChild(text);
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function clearMessages() {
+        messagesDiv.innerHTML = `
+            <div class="empty-messages">
+                <div class="empty-icon">📱</div>
+                <p>No activity yet. Connect to start receiving order updates.</p>
+            </div>
+        `;
+    }
+
+    // Close sidebar when clicking nav items on mobile
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth < 768) {
+                closeSidebar();
+            }
+        });
+    });
+
+    // Close sidebar on window resize to desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768) {
+            closeSidebar();
+        }
+    });
+
+    // Initialize connection status
+    updateConnectionStatus(false);
+</script>
+</body>
+</html>
