@@ -27,11 +27,30 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
-                auth-> auth.requestMatchers("/authenticate")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated()).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
+                        .requestMatchers("/authenticate", "/health/**").permitAll()
+                        
+                        // Admin endpoints
+                        .requestMatchers("/restaurants/**", "/food/**", "/delivery-persons/**").hasAnyRole("ADMIN", "RESTAURANT_OWNER")
+                        
+                        // Customer endpoints
+                        .requestMatchers("/cart/**", "/reviews/**", "/orders/**").hasAnyRole("CUSTOMER", "ADMIN")
+                        
+                        // Delivery person endpoints
+                        .requestMatchers("/deliveries/**").hasAnyRole("DELIVERY_PERSON", "ADMIN")
+                        
+                        // Payment endpoints (accessible by customers and admin)
+                        .requestMatchers("/payments/**", "/razorpay/**").hasAnyRole("CUSTOMER", "ADMIN")
+                        
+                        // Customer management (admin only)
+                        .requestMatchers("/customers/**").hasRole("ADMIN")
+                        
+                        // All other requests require authentication
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
