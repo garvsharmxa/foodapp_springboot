@@ -32,8 +32,8 @@ public class SecurityConfig {
         // like cookies. Each request must explicitly include the JWT token in the Authorization header.
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/authenticate", "/health/**").permitAll()
+                        // Public endpoints - Authentication
+                        .requestMatchers("/authenticate", "/auth/**", "/health/**").permitAll()
                         
                         // Admin endpoints
                         .requestMatchers("/restaurants/**", "/food/**", "/delivery-persons/**").hasAnyRole("ADMIN", "RESTAURANT_OWNER")
