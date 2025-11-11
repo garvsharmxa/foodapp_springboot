@@ -16,12 +16,22 @@ public class JwtUtil {
     private final SecretKey secretKey = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
+    private final long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000L; // 7 days
 
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 1 hour
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public String generateRefreshToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME)) // 7 days
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }

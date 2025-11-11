@@ -145,6 +145,12 @@
 			<artifactId>razorpay-java</artifactId>
 			<version>1.4.6</version>
 		</dependency>
+
+		<!-- Spring Mail for OTP via Gmail -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
