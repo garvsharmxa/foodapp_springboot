@@ -87,13 +87,29 @@ public class AuthController {
     }
 
     /**
-     * Login with email and password
+     * Login with email and password - sends OTP
      * POST /auth/login
      */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         try {
             LoginResponse response = authService.login(request);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            LoginResponse errorResponse = new LoginResponse();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    /**
+     * Verify login OTP and get access token
+     * POST /auth/verify-login-otp
+     */
+    @PostMapping("/verify-login-otp")
+    public ResponseEntity<LoginResponse> verifyLoginOtp(@RequestBody OtpRequest request) {
+        try {
+            LoginResponse response = authService.verifyLoginOtp(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             LoginResponse errorResponse = new LoginResponse();

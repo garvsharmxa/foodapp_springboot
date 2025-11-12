@@ -35,10 +35,13 @@ public class SecurityConfig {
                         // Public endpoints - Authentication
                         .requestMatchers("/authenticate", "/auth/**", "/health/**").permitAll()
                         
-                        // Admin endpoints
-                        .requestMatchers("/restaurants/**", "/food/**", "/delivery-persons/**").hasAnyRole("ADMIN", "RESTAURANT_OWNER")
+                        // Public endpoints - Restaurant and Food browsing (no auth required)
+                        .requestMatchers("/restaurants/**", "/foodItems/**").permitAll()
                         
-                        // Customer endpoints
+                        // Admin endpoints for food management
+                        .requestMatchers("/food/**", "/delivery-persons/**").hasAnyRole("ADMIN", "RESTAURANT_OWNER")
+                        
+                        // Customer endpoints (require authentication)
                         .requestMatchers("/cart/**", "/reviews/**", "/orders/**").hasAnyRole("CUSTOMER", "ADMIN")
                         
                         // Delivery person endpoints
