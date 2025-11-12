@@ -8,19 +8,25 @@ All endpoints are relative to: `/api/v1/auth`
 ## Authentication Flow
 
 ### 1. User Registration
-Users must register and verify their email before they can login.
+Users must register and verify their email with OTP to get access tokens.
 
-### 2. Email Verification
-After registration, an OTP is sent to the user's email. This must be verified to enable the account.
+**Flow:** Register → Verify OTP → **Receive Access Token**
 
-### 3. Login
-Once verified, users can login with their email and password to receive access and refresh tokens.
+### 2. User Login
+Users must verify their identity with OTP during login to get access tokens.
 
-### 4. Token Refresh
+**Flow:** Login → Verify OTP → **Receive Access Token**
+
+### 3. Token Refresh
 When the access token expires, use the refresh token to get a new access token.
 
-### 5. Logout
+### 4. Logout
 Invalidates the refresh token.
+
+### Key Changes
+- ✅ **Registration now returns access token** after OTP verification
+- ✅ **Login now requires OTP verification** before returning access token
+- ✅ Both registration and login flows use OTP for enhanced security
 
 ## Endpoints
 
@@ -59,8 +65,8 @@ Creates a new user account and sends an OTP to the provided email for verificati
 
 ---
 
-### Verify OTP
-Verifies the OTP sent to the user's email during registration.
+### Verify Registration OTP
+Verifies the OTP sent to the user's email during registration and returns access tokens.
 
 **Endpoint:** `POST /auth/verify-otp`
 
@@ -75,18 +81,21 @@ Verifies the OTP sent to the user's email during registration.
 **Response:**
 ```json
 {
-  "message": "Email verified successfully. You can now login.",
-  "success": true
+  "message": "Email verified successfully. You are now logged in.",
+  "success": true,
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
 **Status Codes:**
-- `200 OK` - OTP verified successfully
+- `200 OK` - OTP verified successfully, tokens returned
 - `400 Bad Request` - Invalid or expired OTP
 
 **Notes:**
 - OTP is valid for 5 minutes
 - Account is enabled after successful verification
+- **NEW:** Access and refresh tokens are now returned immediately after verification
 
 ---
 
@@ -116,8 +125,8 @@ Resends the OTP to the user's email.
 
 ---
 
-### Login
-Authenticates a user and returns access and refresh tokens.
+### Login (Step 1)
+Authenticates user credentials and sends OTP to email for verification.
 
 **Endpoint:** `POST /auth/login`
 
@@ -126,6 +135,39 @@ Authenticates a user and returns access and refresh tokens.
 {
   "email": "john.doe@example.com",
   "password": "SecurePassword123!"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "OTP sent to your email. Please verify to complete login.",
+  "email": "john.doe@example.com"
+}
+```
+
+**Status Codes:**
+- `200 OK` - Credentials valid, OTP sent
+- `400 Bad Request` - Invalid credentials or account not verified
+
+**Notes:**
+- **NEW:** Login now sends OTP instead of returning tokens immediately
+- OTP is sent to the registered email address
+- Account must be verified (registration OTP) before login
+- Proceed to `/auth/verify-login-otp` to complete login
+
+---
+
+### Verify Login OTP (Step 2)
+Verifies the OTP sent during login and returns access and refresh tokens.
+
+**Endpoint:** `POST /auth/verify-login-otp`
+
+**Request Body:**
+```json
+{
+  "email": "john.doe@example.com",
+  "otp": "123456"
 }
 ```
 
@@ -142,13 +184,14 @@ Authenticates a user and returns access and refresh tokens.
 ```
 
 **Status Codes:**
-- `200 OK` - Login successful
-- `400 Bad Request` - Invalid credentials or account not verified
+- `200 OK` - Login successful, tokens returned
+- `400 Bad Request` - Invalid or expired OTP
 
 **Notes:**
+- OTP is valid for 5 minutes
 - Access token is valid for 1 hour
 - Refresh token is valid for 7 days
-- Account must be verified (OTP) before login
+- **NEW:** This is now a required step after `/auth/login` to receive tokens
 
 ---
 
@@ -317,14 +360,50 @@ spring.mail.properties.mail.smtp.ssl.trust=smtp.gmail.com
 
 **Note:** Never commit your actual credentials to version control. Use environment variables or secure configuration management.
 
+## Endpoint Security
+
+### Public Endpoints (No Authentication Required)
+Users can browse and explore without logging in:
+- `/restaurants/**` - Browse all restaurants
+- `/foodItems/**` - Browse all food items
+- `/auth/**` - All authentication endpoints
+- `/health/**` - Health check endpoints
+
+### Protected Endpoints (Authentication Required)
+These endpoints require a valid JWT token in the Authorization header:
+- `/orders/**` - Order management (CUSTOMER, ADMIN roles)
+- `/cart/**` - Shopping cart (CUSTOMER, ADMIN roles)
+- `/payments/**` - Payment processing (CUSTOMER, ADMIN roles)
+- `/razorpay/**` - Razorpay integration (CUSTOMER, ADMIN roles)
+- `/reviews/**` - Reviews (CUSTOMER, ADMIN roles)
+- `/deliveries/**` - Delivery management (DELIVERY_PERSON, ADMIN roles)
+- `/customers/**` - Customer management (ADMIN role only)
+- `/food/**` - Food management (ADMIN, RESTAURANT_OWNER roles)
+- `/delivery-persons/**` - Delivery person management (ADMIN, RESTAURANT_OWNER roles)
+
+**Usage:**
+```bash
+# Public endpoint - no auth needed
+curl -X GET http://localhost:3001/api/v1/restaurants
+
+# Protected endpoint - requires auth
+curl -X POST http://localhost:3001/api/v1/orders \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{...}'
+```
+
 ## Security Features
 
-1. **Password Encryption**: Passwords are encrypted using BCrypt before storage
-2. **OTP Expiration**: OTPs expire after 5 minutes
-3. **Account Verification**: Users must verify email before login
-4. **Refresh Token**: Long-lived tokens for seamless authentication
-5. **JWT**: Stateless authentication using JSON Web Tokens
-6. **Account Locking**: Support for account locking mechanism (future enhancement)
+1. **Two-Factor Authentication**: Both registration and login require OTP verification
+2. **Password Encryption**: Passwords are encrypted using BCrypt before storage
+3. **OTP Expiration**: OTPs expire after 5 minutes for security
+4. **Account Verification**: Users must verify email before login
+5. **Refresh Token**: Long-lived tokens for seamless authentication
+6. **JWT**: Stateless authentication using JSON Web Tokens
+7. **Public Browsing**: Users can explore restaurants and food without authentication
+8. **Role-Based Access Control**: Different endpoints require different roles
+9. **Account Locking**: Support for account locking mechanism (future enhancement)
 
 ## Error Handling
 
@@ -351,7 +430,7 @@ Common error messages:
 
 ## Example Flow
 
-### Complete Registration and Login Flow
+### Complete Registration Flow (NEW)
 
 1. **Register**
    ```bash
@@ -365,7 +444,7 @@ Common error messages:
      }'
    ```
 
-2. **Verify OTP** (check email for OTP)
+2. **Verify OTP** (check email for OTP) → **Returns access token**
    ```bash
    curl -X POST http://localhost:3001/api/v1/auth/verify-otp \
      -H "Content-Type: application/json" \
@@ -373,9 +452,12 @@ Common error messages:
        "email": "john.doe@example.com",
        "otp": "123456"
      }'
+   # Response includes accessToken and refreshToken - you're now logged in!
    ```
 
-3. **Login**
+### Complete Login Flow (NEW)
+
+1. **Login** (sends OTP)
    ```bash
    curl -X POST http://localhost:3001/api/v1/auth/login \
      -H "Content-Type: application/json" \
@@ -385,10 +467,35 @@ Common error messages:
      }'
    ```
 
-4. **Use Access Token** (in subsequent requests)
+2. **Verify Login OTP** (check email for OTP) → **Returns access token**
    ```bash
-   curl -X GET http://localhost:3001/api/v1/restaurants \
-     -H "Authorization: Bearer <access_token>"
+   curl -X POST http://localhost:3001/api/v1/auth/verify-login-otp \
+     -H "Content-Type: application/json" \
+     -d '{
+       "email": "john.doe@example.com",
+       "otp": "123456"
+     }'
+   # Response includes accessToken and refreshToken - you're now logged in!
+   ```
+
+### Using the API
+
+3. **Browse Public Endpoints** (no authentication required)
+   ```bash
+   # Browse restaurants
+   curl -X GET http://localhost:3001/api/v1/restaurants
+   
+   # Browse food items
+   curl -X GET http://localhost:3001/api/v1/foodItems
+   ```
+
+4. **Use Protected Endpoints** (authentication required)
+   ```bash
+   # Place an order (requires authentication)
+   curl -X POST http://localhost:3001/api/v1/orders \
+     -H "Authorization: Bearer <access_token>" \
+     -H "Content-Type: application/json" \
+     -d '{...}'
    ```
 
 5. **Refresh Token** (when access token expires)
@@ -428,12 +535,22 @@ Common error messages:
      }'
    ```
 
-3. **Login with New Password**
+3. **Login with New Password** (sends OTP)
    ```bash
    curl -X POST http://localhost:3001/api/v1/auth/login \
      -H "Content-Type: application/json" \
      -d '{
        "email": "john.doe@example.com",
        "password": "NewSecurePassword123!"
+     }'
+   ```
+
+4. **Verify Login OTP** (check email for OTP)
+   ```bash
+   curl -X POST http://localhost:3001/api/v1/auth/verify-login-otp \
+     -H "Content-Type: application/json" \
+     -d '{
+       "email": "john.doe@example.com",
+       "otp": "123456"
      }'
    ```

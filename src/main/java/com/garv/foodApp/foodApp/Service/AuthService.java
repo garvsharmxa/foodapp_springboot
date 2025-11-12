@@ -96,7 +96,17 @@ public class AuthService {
         user.setOtpGeneratedTime(null);
         userRepository.save(user);
 
-        return new AuthResponse("Email verified successfully. You can now login.", true);
+        // Generate access and refresh tokens
+        String accessToken = jwtUtil.generateToken(user.getUsername());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUsername());
+
+        AuthResponse response = new AuthResponse();
+        response.setMessage("Email verified successfully. You are now logged in.");
+        response.setSuccess(true);
+        response.setAccessToken(accessToken);
+        response.setRefreshToken(refreshToken.getToken());
+
+        return response;
     }
 
     public AuthResponse resendOtp(ForgotPasswordRequest request) {
@@ -124,22 +134,27 @@ public class AuthService {
             Users user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-            // Authenticate
+            // Authenticate user credentials
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword())
             );
 
-            // Generate tokens
-            String accessToken = jwtUtil.generateToken(user.getUsername());
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUsername());
+            // Generate and send OTP for login verification
+            String otp = otpService.generateOtp();
+            user.setOtp(otp);
+            user.setOtpGeneratedTime(LocalDateTime.now());
+            userRepository.save(user);
+
+            // Send OTP email
+            try {
+                otpService.sendOtpEmail(user.getEmail(), otp, "Login Verification");
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to send OTP email: " + e.getMessage());
+            }
 
             LoginResponse response = new LoginResponse();
-            response.setAccessToken(accessToken);
-            response.setRefreshToken(refreshToken.getToken());
-            response.setUserName(user.getUsername());
+            response.setMessage("OTP sent to your email. Please verify to complete login.");
             response.setEmail(user.getEmail());
-            response.setRole(user.getRole());
-            response.setMessage("Login successful");
 
             return response;
 
@@ -211,6 +226,41 @@ public class AuthService {
                     return response;
                 })
                 .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+    }
+
+    public LoginResponse verifyLoginOtp(OtpRequest request) {
+        Users user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if OTP is valid
+        if (user.getOtp() == null || !user.getOtp().equals(request.getOtp())) {
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        // Check if OTP is expired
+        if (user.getOtpGeneratedTime() == null || 
+            ChronoUnit.MINUTES.between(user.getOtpGeneratedTime(), LocalDateTime.now()) > OTP_VALIDITY_MINUTES) {
+            throw new RuntimeException("OTP expired. Please login again.");
+        }
+
+        // Clear OTP
+        user.setOtp(null);
+        user.setOtpGeneratedTime(null);
+        userRepository.save(user);
+
+        // Generate tokens
+        String accessToken = jwtUtil.generateToken(user.getUsername());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUsername());
+
+        LoginResponse response = new LoginResponse();
+        response.setAccessToken(accessToken);
+        response.setRefreshToken(refreshToken.getToken());
+        response.setUserName(user.getUsername());
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
+        response.setMessage("Login successful");
+
+        return response;
     }
 
     public AuthResponse logout(String username) {
