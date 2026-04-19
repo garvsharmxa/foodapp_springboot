@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Food Takeaway</title>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/admin/css/dashboard.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>🍔 Admin Panel</h2>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#" data-page="overview" class="nav-item active">
+                <span class="icon">📊</span>
+                <span>Overview</span>
+            </a>
+            <a href="#" data-page="locations" class="nav-item">
+                <span class="icon">📍</span>
+                <span>Locations</span>
+            </a>
+            <a href="#" data-page="restaurants" class="nav-item">
+                <span class="icon">🏪</span>
+                <span>Restaurants</span>
+            </a>
+            <a href="#" data-page="menu" class="nav-item">
+                <span class="icon">🍕</span>
+                <span>Menu Items</span>
+            </a>
+            <a href="#" data-page="coupons" class="nav-item">
+                <span class="icon">🎫</span>
+                <span>Coupons</span>
+            </a>
+            <a href="#" data-page="orders" class="nav-item">
+                <span class="icon">📦</span>
+                <span>Orders</span>
+            </a>
+            <a href="#" data-page="users" class="nav-item">
+                <span class="icon">👥</span>
+                <span>Users</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <button id="logoutBtn" class="btn-logout">
+                <span class="icon">🚪</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 id="pageTitle">Dashboard Overview</h1>
+            <div class="user-info">
+                <span id="adminName">Admin User</span>
+                <div class="avatar">A</div>
+            </div>
+        </header>
+
+        <!-- Page Container -->
+        <div id="pageContainer" class="page-container">
+            <!-- Content will be dynamically loaded here -->
+        </div>
+    </main>
+
+    <!-- Modal Container -->
+    <div id="modalContainer"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="/admin/js/config.js"></script>
+    <script src="/admin/js/api.js"></script>
+    <script src="/admin/js/utils.js"></script>
+    <script src="/admin/js/pages/overview.js"></script>
+    <script src="/admin/js/pages/locations.js"></script>
+    <script src="/admin/js/pages/restaurants.js"></script>
+    <script src="/admin/js/pages/menu.js"></script>
+    <script src="/admin/js/pages/coupons.js"></script>
+    <script src="/admin/js/pages/orders.js"></script>
+    <script src="/admin/js/pages/users.js"></script>
+    <script src="/admin/js/dashboard.js"></script>
+</body>
+</html>

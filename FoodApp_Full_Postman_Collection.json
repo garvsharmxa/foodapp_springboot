@@ -1,0 +1,503 @@
+{
+  "info": {
+    "_postman_id": "7d7ebf4c-0fc4-4f2b-a2d4-4d84f4b66001",
+    "name": "FoodApp Full API Collection",
+    "description": "Comprehensive Postman collection for the Spring Boot FoodApp backend at /api/v1. Covers public, auth, user, cart, coupon, admin, merchant, and Razorpay HTTP endpoints. WebSocket/STOMP endpoints are documented in request descriptions where relevant but are not included as HTTP requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Collection-level prerequest hook.",
+          "// Override variables in Postman environments as needed."
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3002/api/v1" },
+    { "key": "userEmail", "value": "user@example.com" },
+    { "key": "userPassword", "value": "Password123!" },
+    { "key": "otp", "value": "123456" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "merchantToken", "value": "" },
+    { "key": "restaurantId", "value": "11111111-1111-1111-1111-111111111111" },
+    { "key": "vendorId", "value": "11111111-1111-1111-1111-111111111111" },
+    { "key": "foodItemId", "value": "22222222-2222-2222-2222-222222222222" },
+    { "key": "cartItemId", "value": "33333333-3333-3333-3333-333333333333" },
+    { "key": "orderId", "value": "44444444-4444-4444-4444-444444444444" },
+    { "key": "locationId", "value": "55555555-5555-5555-5555-555555555555" },
+    { "key": "userId", "value": "66666666-6666-6666-6666-666666666666" },
+    { "key": "couponId", "value": "77777777-7777-7777-7777-777777777777" },
+    { "key": "couponCode", "value": "WELCOME50" },
+    { "key": "razorpayOrderId", "value": "order_ABC123XYZ" },
+    { "key": "amount", "value": "499.0" },
+    { "key": "remarks", "value": "Updated from Postman" }
+  ],
+  "item": [
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] },
+            "description": "Backend health check."
+          }
+        },
+        {
+          "name": "Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/locations", "host": ["{{baseUrl}}"], "path": ["locations"] },
+            "description": "Public list of delivery locations used by the Flutter onboarding flow."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Authenticate (Legacy)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Password123!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/authenticate", "host": ["{{baseUrl}}"], "path": ["auth", "authenticate"] }
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"Garv Sharma\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\",\n  \"role\": \"USER\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Verify Registration OTP",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const json = pm.response.json();",
+                "if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+                "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"otp\": \"{{otp}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/verify-otp", "host": ["{{baseUrl}}"], "path": ["auth", "verify-otp"] }
+          }
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userEmail}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/resend-otp", "host": ["{{baseUrl}}"], "path": ["auth", "resend-otp"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Verify Login OTP",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const json = pm.response.json();",
+                "if (json.token) pm.collectionVariables.set('accessToken', json.token);",
+                "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"otp\": \"{{otp}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/verify-login-otp", "host": ["{{baseUrl}}"], "path": ["auth", "verify-login-otp"] }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userEmail}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"otp\": \"{{otp}}\",\n  \"newPassword\": \"NewPassword123!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth", "reset-password"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const json = pm.response.json();",
+                "if (json.token) pm.collectionVariables.set('accessToken', json.token);",
+                "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/refresh-token", "host": ["{{baseUrl}}"], "path": ["auth", "refresh-token"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/profile", "host": ["{{baseUrl}}"], "path": ["user", "profile"] }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"Garv Sharma\",\n  \"email\": \"{{userEmail}}\",\n  \"role\": \"USER\",\n  \"locationId\": \"{{locationId}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/user/profile", "host": ["{{baseUrl}}"], "path": ["user", "profile"] }
+          }
+        },
+        {
+          "name": "Get Locations (Protected Alias)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/locations", "host": ["{{baseUrl}}"], "path": ["user", "locations"] }
+          }
+        },
+        {
+          "name": "Get Vendors",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/vendors?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["user", "vendors"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] }
+          }
+        },
+        {
+          "name": "Get Vendor Menu",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/vendors/{{vendorId}}/menu", "host": ["{{baseUrl}}"], "path": ["user", "vendors", "{{vendorId}}", "menu"] }
+          }
+        },
+        {
+          "name": "Search Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/restaurants/search?q=pizza&page=0&size=10", "host": ["{{baseUrl}}"], "path": ["user", "restaurants", "search"], "query": [{ "key": "q", "value": "pizza" }, { "key": "page", "value": "0" }, { "key": "size", "value": "10" }] }
+          }
+        },
+        {
+          "name": "Get Restaurant By Id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/restaurants/{{restaurantId}}", "host": ["{{baseUrl}}"], "path": ["user", "restaurants", "{{restaurantId}}"] }
+          }
+        },
+        {
+          "name": "Place Order From Cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/orders", "host": ["{{baseUrl}}"], "path": ["user", "orders"] }
+          }
+        },
+        {
+          "name": "Place Order Direct",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"items\": [\n    {\n      \"foodItemId\": \"{{foodItemId}}\",\n      \"quantity\": 2\n    }\n  ],\n  \"couponCode\": \"{{couponCode}}\",\n  \"specialInstructions\": \"Less spicy please\"\n}" },
+            "url": { "raw": "{{baseUrl}}/user/orders/direct", "host": ["{{baseUrl}}"], "path": ["user", "orders", "direct"] }
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/orders?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["user", "orders"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] }
+          }
+        },
+        {
+          "name": "Get Order By Id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/orders/{{orderId}}", "host": ["{{baseUrl}}"], "path": ["user", "orders", "{{orderId}}"] }
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/orders/{{orderId}}/cancel?reason=Changed%20my%20mind", "host": ["{{baseUrl}}"], "path": ["user", "orders", "{{orderId}}", "cancel"], "query": [{ "key": "reason", "value": "Changed my mind" }] }
+          }
+        },
+        {
+          "name": "Get Order History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/orders/{{orderId}}/history", "host": ["{{baseUrl}}"], "path": ["user", "orders", "{{orderId}}", "history"] },
+            "description": "WebSocket/STOMP tracking also exists: send to /app/order/subscribe/{orderId} and subscribe to /topic/order/{orderId}."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/cart", "host": ["{{baseUrl}}"], "path": ["user", "cart"] }
+          }
+        },
+        {
+          "name": "Add Item To Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"foodItemId\": \"{{foodItemId}}\",\n  \"quantity\": 2\n}" },
+            "url": { "raw": "{{baseUrl}}/user/cart/items", "host": ["{{baseUrl}}"], "path": ["user", "cart", "items"] }
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"quantity\": 3\n}" },
+            "url": { "raw": "{{baseUrl}}/user/cart/items/{{cartItemId}}", "host": ["{{baseUrl}}"], "path": ["user", "cart", "items", "{{cartItemId}}"] }
+          }
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/cart/items/{{cartItemId}}", "host": ["{{baseUrl}}"], "path": ["user", "cart", "items", "{{cartItemId}}"] }
+          }
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/cart", "host": ["{{baseUrl}}"], "path": ["user", "cart"] }
+          }
+        },
+        {
+          "name": "Apply Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"couponCode\": \"{{couponCode}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/user/cart/coupon", "host": ["{{baseUrl}}"], "path": ["user", "cart", "coupon"] }
+          }
+        },
+        {
+          "name": "Remove Coupon",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/cart/coupon", "host": ["{{baseUrl}}"], "path": ["user", "cart", "coupon"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Coupons",
+      "item": [
+        {
+          "name": "Get Active Coupons",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/coupons/active", "host": ["{{baseUrl}}"], "path": ["user", "coupons", "active"] }
+          }
+        },
+        {
+          "name": "Validate Coupon",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/user/coupons/validate/{{couponCode}}?amount={{amount}}&restaurantId={{restaurantId}}", "host": ["{{baseUrl}}"], "path": ["user", "coupons", "validate", "{{couponCode}}"], "query": [{ "key": "amount", "value": "{{amount}}" }, { "key": "restaurantId", "value": "{{restaurantId}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        { "name": "Dashboard", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard"] } } },
+        { "name": "Get Locations", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/locations", "host": ["{{baseUrl}}"], "path": ["admin", "locations"] } } },
+        { "name": "Create Location", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"IIT Delhi\",\n  \"address\": \"Hauz Khas, New Delhi\"\n}" }, "url": { "raw": "{{baseUrl}}/admin/locations", "host": ["{{baseUrl}}"], "path": ["admin", "locations"] } } },
+        { "name": "Update Location", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Location\",\n  \"address\": \"Updated Address\"\n}" }, "url": { "raw": "{{baseUrl}}/admin/locations/{{locationId}}", "host": ["{{baseUrl}}"], "path": ["admin", "locations", "{{locationId}}"] } } },
+        { "name": "Delete Location", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/locations/{{locationId}}", "host": ["{{baseUrl}}"], "path": ["admin", "locations", "{{locationId}}"] } } },
+        { "name": "Get Vendors", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/vendors?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["admin", "vendors"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] } } },
+        { "name": "Create Vendor", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Campus Cafe\",\n  \"address\": \"IIT Delhi\",\n  \"phone\": \"9999999999\",\n  \"email\": \"vendor@example.com\",\n  \"ownerName\": \"Merchant Owner\",\n  \"rating\": 4.5,\n  \"imageUrl\": \"https://example.com/vendor.png\",\n  \"isOpen\": true,\n  \"category\": \"Fast Food\",\n  \"locationId\": \"{{locationId}}\"\n}" }, "url": { "raw": "{{baseUrl}}/admin/vendors", "host": ["{{baseUrl}}"], "path": ["admin", "vendors"] } } },
+        { "name": "Update Vendor", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Vendor\",\n  \"address\": \"Updated Address\",\n  \"phone\": \"8888888888\",\n  \"email\": \"updatedvendor@example.com\",\n  \"ownerName\": \"Owner\",\n  \"rating\": 4.2,\n  \"imageUrl\": \"https://example.com/vendor.png\",\n  \"isOpen\": true,\n  \"category\": \"Cafe\",\n  \"locationId\": \"{{locationId}}\"\n}" }, "url": { "raw": "{{baseUrl}}/admin/vendors/{{vendorId}}", "host": ["{{baseUrl}}"], "path": ["admin", "vendors", "{{vendorId}}"] } } },
+        { "name": "Delete Vendor", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/vendors/{{vendorId}}", "host": ["{{baseUrl}}"], "path": ["admin", "vendors", "{{vendorId}}"] } } },
+        { "name": "Assign Vendor Owner", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/vendors/{{vendorId}}/assign-owner?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["admin", "vendors", "{{vendorId}}", "assign-owner"], "query": [{ "key": "userId", "value": "{{userId}}" }] } } },
+        { "name": "Get Restaurants", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/restaurants?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["admin", "restaurants"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] } } },
+        { "name": "Create Restaurant", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Main Restaurant\",\n  \"address\": \"North Campus\",\n  \"phone\": \"9999999999\",\n  \"email\": \"restaurant@example.com\",\n  \"ownerName\": \"Owner\",\n  \"rating\": 4.0,\n  \"imageUrl\": \"https://example.com/restaurant.png\",\n  \"isOpen\": true,\n  \"category\": \"Indian\",\n  \"locationId\": \"{{locationId}}\"\n}" }, "url": { "raw": "{{baseUrl}}/admin/restaurants", "host": ["{{baseUrl}}"], "path": ["admin", "restaurants"] } } },
+        { "name": "Update Restaurant", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Restaurant\",\n  \"address\": \"Updated Address\",\n  \"phone\": \"7777777777\",\n  \"email\": \"restaurant@example.com\",\n  \"ownerName\": \"Owner\",\n  \"rating\": 4.1,\n  \"imageUrl\": \"https://example.com/restaurant.png\",\n  \"isOpen\": true,\n  \"category\": \"Indian\",\n  \"locationId\": \"{{locationId}}\"\n}" }, "url": { "raw": "{{baseUrl}}/admin/restaurants/{{restaurantId}}", "host": ["{{baseUrl}}"], "path": ["admin", "restaurants", "{{restaurantId}}"] } } },
+        { "name": "Delete Restaurant", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/restaurants/{{restaurantId}}", "host": ["{{baseUrl}}"], "path": ["admin", "restaurants", "{{restaurantId}}"] } } },
+        { "name": "Get Food Items", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/food-items", "host": ["{{baseUrl}}"], "path": ["admin", "food-items"] } } },
+        { "name": "Create Food Item", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Veg Burger\",\n  \"description\": \"Fresh burger\",\n  \"price\": 149.0,\n  \"imageUrl\": \"https://example.com/burger.png\",\n  \"available\": true,\n  \"restaurant\": {\n    \"id\": \"{{restaurantId}}\"\n  }\n}" }, "url": { "raw": "{{baseUrl}}/admin/food-items", "host": ["{{baseUrl}}"], "path": ["admin", "food-items"] } } },
+        { "name": "Update Food Item", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Veg Burger\",\n  \"description\": \"Updated description\",\n  \"price\": 159.0,\n  \"imageUrl\": \"https://example.com/burger.png\",\n  \"available\": true,\n  \"restaurant\": {\n    \"id\": \"{{restaurantId}}\"\n  }\n}" }, "url": { "raw": "{{baseUrl}}/admin/food-items/{{foodItemId}}", "host": ["{{baseUrl}}"], "path": ["admin", "food-items", "{{foodItemId}}"] } } },
+        { "name": "Delete Food Item", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/food-items/{{foodItemId}}", "host": ["{{baseUrl}}"], "path": ["admin", "food-items", "{{foodItemId}}"] } } },
+        { "name": "Get Orders", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/orders?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["admin", "orders"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] } } },
+        { "name": "Get Order By Id", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/orders/{{orderId}}", "host": ["{{baseUrl}}"], "path": ["admin", "orders", "{{orderId}}"] } } },
+        { "name": "Get Orders By Status", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/orders/status/PENDING?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["admin", "orders", "status", "PENDING"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] } } },
+        { "name": "Update Order Status", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/orders/{{orderId}}/status?status=CONFIRMED&remarks={{remarks}}", "host": ["{{baseUrl}}"], "path": ["admin", "orders", "{{orderId}}", "status"], "query": [{ "key": "status", "value": "CONFIRMED" }, { "key": "remarks", "value": "{{remarks}}" }] } } },
+        { "name": "Get Users", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/users", "host": ["{{baseUrl}}"], "path": ["admin", "users"] } } },
+        { "name": "Get User By Id", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["admin", "users", "{{userId}}"] } } },
+        { "name": "Get Coupons", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/coupons", "host": ["{{baseUrl}}"], "path": ["admin", "coupons"] } } },
+        { "name": "Get Coupon By Id", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/coupons/{{couponId}}", "host": ["{{baseUrl}}"], "path": ["admin", "coupons", "{{couponId}}"] } } },
+        { "name": "Create Coupon", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"code\": \"WELCOME50\",\n  \"description\": \"Welcome discount\",\n  \"discountType\": \"PERCENTAGE\",\n  \"discountValue\": 50.0,\n  \"minimumOrderValue\": 200.0,\n  \"maxDiscountAmount\": 150.0,\n  \"validFrom\": \"2026-04-19T00:00:00\",\n  \"validTill\": \"2026-12-31T23:59:59\",\n  \"usageLimit\": 100,\n  \"usedCount\": 0,\n  \"isActive\": true,\n  \"restaurantId\": null\n}" }, "url": { "raw": "{{baseUrl}}/admin/coupons", "host": ["{{baseUrl}}"], "path": ["admin", "coupons"] } } },
+        { "name": "Update Coupon", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"code\": \"WELCOME50\",\n  \"description\": \"Updated discount\",\n  \"discountType\": \"PERCENTAGE\",\n  \"discountValue\": 40.0,\n  \"minimumOrderValue\": 250.0,\n  \"maxDiscountAmount\": 120.0,\n  \"validFrom\": \"2026-04-19T00:00:00\",\n  \"validTill\": \"2026-12-31T23:59:59\",\n  \"usageLimit\": 100,\n  \"usedCount\": 0,\n  \"isActive\": true,\n  \"restaurantId\": null\n}" }, "url": { "raw": "{{baseUrl}}/admin/coupons/{{couponId}}", "host": ["{{baseUrl}}"], "path": ["admin", "coupons", "{{couponId}}"] } } },
+        { "name": "Delete Coupon", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/admin/coupons/{{couponId}}", "host": ["{{baseUrl}}"], "path": ["admin", "coupons", "{{couponId}}"] } } }
+      ]
+    },
+    {
+      "name": "Merchant",
+      "item": [
+        { "name": "Get Vendor Profile", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/vendor/profile", "host": ["{{baseUrl}}"], "path": ["merchant", "vendor", "profile"] } } },
+        { "name": "Update Vendor Profile", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Campus Cafe\",\n  \"address\": \"Updated merchant address\",\n  \"phone\": \"9999999999\",\n  \"email\": \"merchant@example.com\",\n  \"ownerName\": \"Merchant Owner\",\n  \"rating\": 4.5,\n  \"imageUrl\": \"https://example.com/vendor.png\",\n  \"isOpen\": true,\n  \"category\": \"Cafe\",\n  \"locationId\": \"{{locationId}}\"\n}" }, "url": { "raw": "{{baseUrl}}/merchant/vendor/profile", "host": ["{{baseUrl}}"], "path": ["merchant", "vendor", "profile"] } } },
+        { "name": "Toggle Vendor Status", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/vendor/toggle-status", "host": ["{{baseUrl}}"], "path": ["merchant", "vendor", "toggle-status"] } } },
+        { "name": "Get Merchant Orders", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/orders?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["merchant", "orders"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] } } },
+        { "name": "Get Today Orders", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/orders/today?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["merchant", "orders", "today"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] } } },
+        { "name": "Get Orders By Status", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/orders/status/PREPARING?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["merchant", "orders", "status", "PREPARING"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] } } },
+        { "name": "Get Merchant Order By Id", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/orders/{{orderId}}", "host": ["{{baseUrl}}"], "path": ["merchant", "orders", "{{orderId}}"] } } },
+        { "name": "Update Merchant Order Status", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/orders/{{orderId}}/status?status=PREPARING&remarks={{remarks}}", "host": ["{{baseUrl}}"], "path": ["merchant", "orders", "{{orderId}}", "status"], "query": [{ "key": "status", "value": "PREPARING" }, { "key": "remarks", "value": "{{remarks}}" }] }, "description": "WebSocket option also exists: send STOMP message to /app/order/update-status." } },
+        { "name": "Get Menu", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/menu", "host": ["{{baseUrl}}"], "path": ["merchant", "menu"] } } },
+        { "name": "Add Menu Item", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Cheese Sandwich\",\n  \"description\": \"Toasted sandwich\",\n  \"price\": 129.0,\n  \"imageUrl\": \"https://example.com/sandwich.png\",\n  \"available\": true\n}" }, "url": { "raw": "{{baseUrl}}/merchant/menu", "host": ["{{baseUrl}}"], "path": ["merchant", "menu"] } } },
+        { "name": "Update Menu Item", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Sandwich\",\n  \"description\": \"Updated description\",\n  \"price\": 139.0,\n  \"imageUrl\": \"https://example.com/sandwich.png\",\n  \"available\": true\n}" }, "url": { "raw": "{{baseUrl}}/merchant/menu/{{foodItemId}}", "host": ["{{baseUrl}}"], "path": ["merchant", "menu", "{{foodItemId}}"] } } },
+        { "name": "Delete Menu Item", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/menu/{{foodItemId}}", "host": ["{{baseUrl}}"], "path": ["merchant", "menu", "{{foodItemId}}"] } } },
+        { "name": "Merchant Dashboard", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{merchantToken}}" }], "url": { "raw": "{{baseUrl}}/merchant/dashboard", "host": ["{{baseUrl}}"], "path": ["merchant", "dashboard"] } } }
+      ]
+    },
+    {
+      "name": "Razorpay",
+      "item": [
+        {
+          "name": "Create Razorpay Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": {{amount}},\n  \"currency\": \"INR\",\n  \"receipt\": \"receipt-001\"\n}" },
+            "url": { "raw": "{{baseUrl}}/razorpay/create-order", "host": ["{{baseUrl}}"], "path": ["razorpay", "create-order"] }
+          }
+        },
+        {
+          "name": "Verify Razorpay Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"razorpayOrderId\": \"{{razorpayOrderId}}\",\n  \"razorpayPaymentId\": \"pay_ABC123XYZ\",\n  \"razorpaySignature\": \"sample_signature\",\n  \"orderId\": 1\n}" },
+            "url": { "raw": "{{baseUrl}}/razorpay/verify-payment", "host": ["{{baseUrl}}"], "path": ["razorpay", "verify-payment"] }
+          }
+        },
+        {
+          "name": "Handle Failed Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/razorpay/payment-failed?razorpayOrderId={{razorpayOrderId}}&reason=Payment%20failed", "host": ["{{baseUrl}}"], "path": ["razorpay", "payment-failed"], "query": [{ "key": "razorpayOrderId", "value": "{{razorpayOrderId}}" }, { "key": "reason", "value": "Payment failed" }] }
+          }
+        },
+        {
+          "name": "Get Order By Razorpay Order Id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/razorpay/order/{{razorpayOrderId}}", "host": ["{{baseUrl}}"], "path": ["razorpay", "order", "{{razorpayOrderId}}"] }
+          }
+        }
+      ]
+    }
+  ]
+}

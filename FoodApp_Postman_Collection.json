@@ -1,0 +1,759 @@
+{
+  "info": {
+    "name": "FoodApp API Collection",
+    "description": "Complete collection of REST APIs for the FoodApp Spring Boot backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"USER\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Login OTP",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/auth/verify-login-otp", "host": ["{{baseUrl}}"], "path": ["auth", "verify-login-otp"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"otp\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify OTP (Reg)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/auth/verify-otp", "host": ["{{baseUrl}}"], "path": ["auth", "verify-otp"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"otp\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/auth/resend-otp", "host": ["{{baseUrl}}"], "path": ["auth", "resend-otp"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth", "reset-password"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"newpass123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/auth/refresh-token", "host": ["{{baseUrl}}"], "path": ["auth", "refresh-token"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"your-refresh-token\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Locations",
+          "item": [
+            {
+              "name": "Get All Locations",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/admin/locations", "host": ["{{baseUrl}}"], "path": ["admin", "locations"]}
+              }
+            },
+            {
+              "name": "Create Location",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {"raw": "{{baseUrl}}/admin/locations", "host": ["{{baseUrl}}"], "path": ["admin", "locations"]},
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"City Center\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Location",
+              "request": {
+                "method": "PUT",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "locations", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated City Center\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Location",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "locations", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Vendors / Restaurants",
+          "item": [
+            {
+              "name": "Get All Vendors",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/admin/vendors", "host": ["{{baseUrl}}"], "path": ["admin", "vendors"]}
+              }
+            },
+            {
+              "name": "Create Vendor",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {"raw": "{{baseUrl}}/admin/vendors", "host": ["{{baseUrl}}"], "path": ["admin", "vendors"]},
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Pizza Palace\",\n  \"locationId\": \"uuid-here\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Vendor",
+              "request": {
+                "method": "PUT",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/vendors/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "vendors", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Pizza Palace Updated\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Vendor",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/vendors/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "vendors", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Food Items",
+          "item": [
+            {
+              "name": "Get All Food Items",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/admin/food-items", "host": ["{{baseUrl}}"], "path": ["admin", "food-items"]}
+              }
+            },
+            {
+              "name": "Create Food Item",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {"raw": "{{baseUrl}}/admin/food-items", "host": ["{{baseUrl}}"], "path": ["admin", "food-items"]},
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Margherita Pizza\",\n  \"price\": 299.0,\n  \"restaurantId\": \"uuid-here\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Food Item",
+              "request": {
+                "method": "PUT",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/food-items/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "food-items", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Margherita Pizza Large\",\n  \"price\": 399.0\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Food Item",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/food-items/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "food-items", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Orders",
+          "item": [
+            {
+              "name": "Get All Orders",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/admin/orders", "host": ["{{baseUrl}}"], "path": ["admin", "orders"]}
+              }
+            },
+            {
+              "name": "Get Order By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "orders", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "Get All Users",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/admin/users", "host": ["{{baseUrl}}"], "path": ["admin", "users"]}
+              }
+            },
+            {
+              "name": "Get User By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "users", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Coupons",
+          "item": [
+            {
+              "name": "Get All Coupons",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/admin/coupons", "host": ["{{baseUrl}}"], "path": ["admin", "coupons"]}
+              }
+            },
+            {
+              "name": "Get Coupon By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/coupons/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "coupons", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                }
+              }
+            },
+            {
+              "name": "Create Coupon",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {"raw": "{{baseUrl}}/admin/coupons", "host": ["{{baseUrl}}"], "path": ["admin", "coupons"]},
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"WELCOME10\",\n  \"discountPercentage\": 10,\n  \"maxDiscountAmount\": 100\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Coupon",
+              "request": {
+                "method": "PUT",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/coupons/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "coupons", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"WELCOME20\",\n  \"discountPercentage\": 20\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Coupon",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/coupons/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "coupons", ":id"],
+                  "variable": [{"key": "id", "value": "uuid-here"}]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/user/locations", "host": ["{{baseUrl}}"], "path": ["user", "locations"]}
+          }
+        },
+        {
+          "name": "Get Vendors By Location",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/vendors?locationId=uuid-here",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "vendors"],
+              "query": [{"key": "locationId", "value": "uuid-here"}]
+            }
+          }
+        },
+        {
+          "name": "Get Vendor Menu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/vendors/:vendorId/menu",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "vendors", ":vendorId", "menu"],
+              "variable": [{"key": "vendorId", "value": "uuid-here"}]
+            }
+          }
+        },
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/user/orders", "host": ["{{baseUrl}}"], "path": ["user", "orders"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"uuid-here\",\n  \"items\": []\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Order By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/orders/:orderId",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "orders", ":orderId"],
+              "variable": [{"key": "orderId", "value": "uuid-here"}]
+            }
+          }
+        },
+        {
+          "name": "Cart",
+          "item": [
+            {
+              "name": "Get Cart Summary",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/user/cart", "host": ["{{baseUrl}}"], "path": ["user", "cart"]}
+              }
+            },
+            {
+              "name": "Add Item To Cart",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {"raw": "{{baseUrl}}/user/cart/items", "host": ["{{baseUrl}}"], "path": ["user", "cart", "items"]},
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"foodItemId\": \"uuid-here\",\n  \"quantity\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Cart Item",
+              "request": {
+                "method": "PUT",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {
+                  "raw": "{{baseUrl}}/user/cart/items/:itemId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["user", "cart", "items", ":itemId"],
+                  "variable": [{"key": "itemId", "value": "uuid-here"}]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"quantity\": 2\n}"
+                }
+              }
+            },
+            {
+              "name": "Remove Item From Cart",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/user/cart/items/:itemId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["user", "cart", "items", ":itemId"],
+                  "variable": [{"key": "itemId", "value": "uuid-here"}]
+                }
+              }
+            },
+            {
+              "name": "Clear Cart",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/user/cart", "host": ["{{baseUrl}}"], "path": ["user", "cart"]}
+              }
+            },
+            {
+              "name": "Apply Coupon",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "url": {"raw": "{{baseUrl}}/user/cart/coupon", "host": ["{{baseUrl}}"], "path": ["user", "cart", "coupon"]},
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"couponCode\": \"WELCOME10\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Remove Coupon",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/user/cart/coupon", "host": ["{{baseUrl}}"], "path": ["user", "cart", "coupon"]}
+              }
+            }
+          ]
+        },
+        {
+          "name": "Coupons",
+          "item": [
+            {
+              "name": "Get Active Coupons",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {"raw": "{{baseUrl}}/user/coupons/active", "host": ["{{baseUrl}}"], "path": ["user", "coupons", "active"]}
+              }
+            },
+            {
+              "name": "Validate Coupon",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/user/coupons/validate/:code?amount=500&restaurantId=uuid-here",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["user", "coupons", "validate", ":code"],
+                  "query": [
+                    {"key": "amount", "value": "500"},
+                    {"key": "restaurantId", "value": "uuid-here"}
+                  ],
+                  "variable": [{"key": "code", "value": "WELCOME10"}]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Merchant",
+      "item": [
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/merchant/vendor/profile", "host": ["{{baseUrl}}"], "path": ["merchant", "vendor", "profile"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"uuid-here\",\n  \"name\": \"Restaurant Updated\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Daily Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/merchant/orders", "host": ["{{baseUrl}}"], "path": ["merchant", "orders"]}
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/merchant/orders/:orderId/status?status=PREPARING",
+              "host": ["{{baseUrl}}"],
+              "path": ["merchant", "orders", ":orderId", "status"],
+              "query": [{"key": "status", "value": "PREPARING"}],
+              "variable": [{"key": "orderId", "value": "uuid-here"}]
+            }
+          }
+        },
+        {
+          "name": "Add Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/merchant/menu", "host": ["{{baseUrl}}"], "path": ["merchant", "menu"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Burger\",\n  \"price\": 150.0\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Menu Item",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {
+              "raw": "{{baseUrl}}/merchant/menu/:itemId",
+              "host": ["{{baseUrl}}"],
+              "path": ["merchant", "menu", ":itemId"],
+              "variable": [{"key": "itemId", "value": "uuid-here"}]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Burger Deluxe\",\n  \"price\": 200.0\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Menu Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/merchant/menu/:itemId",
+              "host": ["{{baseUrl}}"],
+              "path": ["merchant", "menu", ":itemId"],
+              "variable": [{"key": "itemId", "value": "uuid-here"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Razorpay",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/razorpay/create-order", "host": ["{{baseUrl}}"], "path": ["razorpay", "create-order"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Payment",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{baseUrl}}/razorpay/verify-payment", "host": ["{{baseUrl}}"], "path": ["razorpay", "verify-payment"]},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razorpayOrderId\": \"order_abc123\",\n  \"razorpayPaymentId\": \"pay_abc123\",\n  \"razorpaySignature\": \"signature_hash\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Payment Failed",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/razorpay/payment-failed?razorpayOrderId=order_abc123&reason=cancelled",
+              "host": ["{{baseUrl}}"],
+              "path": ["razorpay", "payment-failed"],
+              "query": [
+                {"key": "razorpayOrderId", "value": "order_abc123"},
+                {"key": "reason", "value": "cancelled"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order By Razorpay ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/razorpay/order/:razorpayOrderId",
+              "host": ["{{baseUrl}}"],
+              "path": ["razorpay", "order", ":razorpayOrderId"],
+              "variable": [{"key": "razorpayOrderId", "value": "order_abc123"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "System Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"]}
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "your_jwt_token_here",
+      "type": "string"
+    }
+  ]
+}

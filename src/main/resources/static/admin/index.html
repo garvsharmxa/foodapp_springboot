@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Food Takeaway</title>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/admin/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🍔 Food Takeaway Admin</h1>
+                <p>Sign in to access your dashboard</p>
+            </div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required 
+                           placeholder="admin@foodapp.com" autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Enter your password" autocomplete="current-password">
+                </div>
+
+                <div id="otpSection" class="form-group" style="display: none;">
+                    <label for="otp">Enter OTP</label>
+                    <input type="text" id="otp" name="otp" 
+                           placeholder="Enter 6-digit OTP" maxlength="6">
+                    <small class="help-text">Check your email or console for OTP</small>
+                </div>
+                
+                <div id="errorMessage" class="error-message"></div>
+                
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    <span id="btnText">Sign In</span>
+                    <span id="btnLoader" class="loader" style="display: none;"></span>
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Hardcode Admin Bypass:</p>
+                <small style="line-height:1.6">Email: <strong>garvsharmxa@gmail.com</strong><br>Password: <strong>admin@123</strong></small>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin/js/config.js"></script>
+    <script src="/admin/js/login.js"></script>
+</body>
+</html>

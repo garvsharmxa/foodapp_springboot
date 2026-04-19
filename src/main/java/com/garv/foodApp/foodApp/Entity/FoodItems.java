@@ -1,0 +1,37 @@
+package com.garv.foodApp.foodApp.Entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.UUID;
+
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
+public class FoodItems {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    private String name;
+
+    private String description;
+
+    private String imageUrl;
+
+    private int price;
+
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    @JsonBackReference
+    private Restaurant restaurant;
+
+}

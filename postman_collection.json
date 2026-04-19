@@ -1,0 +1,1004 @@
+{
+	"info": {
+		"_postman_id": "takeaway-food-app-v3-final",
+		"name": "Food App API - Full Collection (UUID)",
+		"description": "Comprehensive collection for the Food ordering platform covering all layers: Auth, User, Merchant, Admin, and Razorpay.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Legacy Authenticate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"Password123!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/auth/authenticate"
+					}
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\",\n    \"role\": \"USER\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/auth/register"
+					}
+				},
+				{
+					"name": "Verify registration OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"otp\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/auth/verify-otp"
+					}
+				},
+				{
+					"name": "Resend OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/auth/resend-otp"
+					}
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/auth/login"
+					}
+				},
+				{
+					"name": "Verify login OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"otp\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/auth/verify-login-otp"
+					}
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/auth/forgot-password"
+					}
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"otp\": \"123456\",\n    \"newPassword\": \"NewPassword123!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/auth/reset-password"
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/auth/refresh-token"
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/auth/logout"
+					}
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get Locations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/user/locations"
+					}
+				},
+				{
+					"name": "Get Vendors by Location",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/vendors?locationId=550e8400-e29b-41d4-a716-446655440000",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"vendors"
+							],
+							"query": [
+								{
+									"key": "locationId",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Vendor Menu",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/user/vendors/550e8400-e29b-41d4-a716-446655440001/menu"
+					}
+				},
+				{
+					"name": "Place Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": \"550e8400-e29b-41d4-a716-446655440002\",\n    \"restaurant\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440001\"\n    },\n    \"foodItems\": [\n        {\n            \"id\": \"550e8400-e29b-41d4-a716-446655440003\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/user/orders"
+					}
+				},
+				{
+					"name": "Get Order By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/user/orders/550e8400-e29b-41d4-a716-446655440004"
+					}
+				}
+			]
+		},
+		{
+			"name": "Merchant",
+			"item": [
+				{
+					"name": "Update Vendor Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"550e8400-e29b-41d4-a716-446655440001\",\n    \"name\": \"Gourmet Shack Updated\",\n    \"address\": \"New Street, Gurgaon\",\n    \"isOpen\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/merchant/vendor/profile"
+					}
+				},
+				{
+					"name": "Get Orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/merchant/orders"
+					}
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/merchant/orders/550e8400-e29b-41d4-a716-446655440004/status?status=CONFIRMED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"merchant",
+								"orders",
+								"550e8400-e29b-41d4-a716-446655440004",
+								"status"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "CONFIRMED"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Add Food Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Spicy Noodles\",\n    \"price\": 350.0,\n    \"description\": \"Hot and spicy szechuan noodles\",\n    \"imageUrl\": \"https://example.com/noodles.jpg\",\n    \"restaurant\": {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440001\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/merchant/menu"
+					}
+				},
+				{
+					"name": "Update Food Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Spicy Noodles Updated\",\n    \"price\": 375.0,\n    \"description\": \"Extra spicy szechuan noodles\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/merchant/menu/550e8400-e29b-41d4-a716-446655440003"
+					}
+				},
+				{
+					"name": "Delete Food Item",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/merchant/menu/550e8400-e29b-41d4-a716-446655440003"
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Locations",
+					"item": [
+						{
+							"name": "Get All Locations",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/locations"
+							}
+						},
+						{
+							"name": "Create Location",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"DLF Phase 3\",\n    \"address\": \"Gurgaon, Haryana\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/locations"
+							}
+						},
+						{
+							"name": "Update Location",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"DLF Phase 3 Updated\",\n    \"address\": \"Gurgaon, Haryana, India\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/locations/{{locationId}}"
+							}
+						},
+						{
+							"name": "Delete Location",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/locations/{{locationId}}"
+							}
+						}
+					]
+				},
+				{
+					"name": "Restaurants",
+					"item": [
+						{
+							"name": "Get All Restaurants",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/restaurants"
+							}
+						},
+						{
+							"name": "Create Restaurant",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Gourmet Garden\",\n    \"address\": \"Main Road, Sector 14\",\n    \"locationId\": \"{{locationId}}\",\n    \"category\": \"Vegan\",\n    \"isOpen\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/restaurants"
+							}
+						},
+						{
+							"name": "Update Restaurant",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Gourmet Garden Updated\",\n    \"address\": \"New Address\",\n    \"isOpen\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/restaurants/{{restaurantId}}"
+							}
+						},
+						{
+							"name": "Delete Restaurant",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/restaurants/{{restaurantId}}"
+							}
+						}
+					]
+				},
+				{
+					"name": "Food Items",
+					"item": [
+						{
+							"name": "Get All Food Items",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/food-items"
+							}
+						},
+						{
+							"name": "Create Food Item",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Spicy Noodles\",\n    \"price\": 350.0,\n    \"description\": \"Hot and spicy szechuan noodles\",\n    \"imageUrl\": \"https://example.com/noodles.jpg\",\n    \"restaurant\": {\n        \"id\": \"{{restaurantId}}\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/food-items"
+							}
+						},
+						{
+							"name": "Update Food Item",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Extra Spicy Noodles\",\n    \"price\": 375.0,\n    \"description\": \"Extra hot szechuan noodles\",\n    \"imageUrl\": \"https://example.com/noodles-updated.jpg\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/food-items/{{foodItemId}}"
+							}
+						},
+						{
+							"name": "Delete Food Item",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/food-items/{{foodItemId}}"
+							}
+						}
+					]
+				},
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "Get All Orders",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/orders"
+							}
+						},
+						{
+							"name": "Get Order By ID",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/orders/{{orderId}}"
+							}
+						}
+					]
+				},
+				{
+					"name": "Coupons",
+					"item": [
+						{
+							"name": "Get All Coupons",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/coupons"
+							}
+						},
+						{
+							"name": "Get Coupon By ID",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/coupons/{{couponId}}"
+							}
+						},
+						{
+							"name": "Create Coupon",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"code\": \"SAVE50\",\n    \"discountPercentage\": 50.0,\n    \"maxDiscountAmount\": 200.0,\n    \"minOrderAmount\": 500.0,\n    \"validFrom\": \"2024-01-01T00:00:00\",\n    \"validUntil\": \"2024-12-31T23:59:59\",\n    \"usageLimit\": 100,\n    \"isActive\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/coupons"
+							}
+						},
+						{
+							"name": "Update Coupon",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"code\": \"SAVE60\",\n    \"discountPercentage\": 60.0,\n    \"maxDiscountAmount\": 250.0,\n    \"isActive\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/coupons/{{couponId}}"
+							}
+						},
+						{
+							"name": "Delete Coupon",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/coupons/{{couponId}}"
+							}
+						}
+					]
+				},
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Get All Users",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/users"
+							}
+						},
+						{
+							"name": "Get User By ID",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/users/{{userId}}"
+							}
+						}
+					]
+				},
+				{
+					"name": "Legacy Endpoints",
+					"item": [
+						{
+							"name": "Get All Vendors (Legacy)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/vendors"
+							}
+						},
+						{
+							"name": "Create Vendor (Legacy)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Test Vendor\",\n    \"address\": \"Test Address\",\n    \"locationId\": \"{{locationId}}\",\n    \"category\": \"Fast Food\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/vendors"
+							}
+						},
+						{
+							"name": "Update Vendor (Legacy)",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Updated Vendor\",\n    \"isOpen\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/admin/vendors/{{restaurantId}}"
+							}
+						},
+						{
+							"name": "Delete Vendor (Legacy)",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": "{{baseUrl}}/admin/vendors/{{restaurantId}}"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Razorpay",
+			"item": [
+				{
+					"name": "Create Razorpay Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"orderId\": \"550e8400-e29b-41d4-a716-446655440004\",\n    \"amount\": 500.0,\n    \"currency\": \"INR\",\n    \"receipt\": \"receipt#101\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/razorpay/create-order"
+					}
+				},
+				{
+					"name": "Verify Razorpay Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"razorpayOrderId\": \"order_PKV9N1XJkUuXFm\",\n    \"razorpayPaymentId\": \"pay_PKVAW1q7XUuXFm\",\n    \"razorpaySignature\": \"abc1237e3d23193e7b17188701049b49386c905b4105260840e6986e3f0195a\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/razorpay/verify-payment"
+					}
+				},
+				{
+					"name": "Handle Payment Failure",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/razorpay/payment-failed?razorpayOrderId=order_PKV9N1XJkUuXFm&reason=User cancelled",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"razorpay",
+								"payment-failed"
+							],
+							"query": [
+								{
+									"key": "razorpayOrderId",
+									"value": "order_PKV9N1XJkUuXFm"
+								},
+								{
+									"key": "reason",
+									"value": "User cancelled"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Order by Razorpay ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{baseUrl}}/razorpay/order/order_PKV9N1XJkUuXFm"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3002/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "locationId",
+			"value": "",
+			"type": "string",
+			"description": "UUID of a location (set after creating/getting locations)"
+		},
+		{
+			"key": "restaurantId",
+			"value": "",
+			"type": "string",
+			"description": "UUID of a restaurant (set after creating/getting restaurants)"
+		},
+		{
+			"key": "foodItemId",
+			"value": "",
+			"type": "string",
+			"description": "UUID of a food item (set after creating/getting food items)"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "string",
+			"description": "UUID of an order (set after creating/getting orders)"
+		},
+		{
+			"key": "couponId",
+			"value": "",
+			"type": "string",
+			"description": "UUID of a coupon (set after creating/getting coupons)"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"description": "UUID of a user (set after creating/getting users)"
+		}
+	]
+}
